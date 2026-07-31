@@ -260,6 +260,56 @@ namespace cv { namespace cuda { namespace device
             }
         };
 
+#ifdef DAS_ADAPT
+        template <int cn> struct ReduceUnroll;
+
+        template <> struct ReduceUnroll<1>
+        {
+            template <int BLOCK_SIZE>
+            static __device__ __forceinline__ void reduce_all(float* cta_buffer, float& weights_sum, float& sum)
+            {
+                reduce<BLOCK_SIZE>(cta_buffer, weights_sum, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + BLOCK_SIZE, sum, threadIdx.x, plus<float>());
+            }
+        };
+
+        template <> struct ReduceUnroll<2>
+        {
+            template <int BLOCK_SIZE>
+            static __device__ __forceinline__ void reduce_all(float* cta_buffer, float& weights_sum, float2& sum)
+            {
+                reduce<BLOCK_SIZE>(cta_buffer, weights_sum, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + BLOCK_SIZE, sum.x, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + 2 * BLOCK_SIZE, sum.y, threadIdx.x, plus<float>());
+            }
+        };
+
+        template <> struct ReduceUnroll<3>
+        {
+            template <int BLOCK_SIZE>
+            static __device__ __forceinline__ void reduce_all(float* cta_buffer, float& weights_sum, float3& sum)
+            {
+                reduce<BLOCK_SIZE>(cta_buffer, weights_sum, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + BLOCK_SIZE, sum.x, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + 2 * BLOCK_SIZE, sum.y, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + 3 * BLOCK_SIZE, sum.z, threadIdx.x, plus<float>());
+            }
+        };
+
+        template <> struct ReduceUnroll<4>
+        {
+            template <int BLOCK_SIZE>
+            static __device__ __forceinline__ void reduce_all(float* cta_buffer, float& weights_sum, float4& sum)
+            {
+                reduce<BLOCK_SIZE>(cta_buffer, weights_sum, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + BLOCK_SIZE, sum.x, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + 2 * BLOCK_SIZE, sum.y, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + 3 * BLOCK_SIZE, sum.z, threadIdx.x, plus<float>());
+                reduce<BLOCK_SIZE>(cta_buffer + 4 * BLOCK_SIZE, sum.w, threadIdx.x, plus<float>());
+            }
+        };
+#endif
+
         __device__ __forceinline__ int calcDist(const uchar&  a, const uchar&  b) { return (a-b)*(a-b); }
         __device__ __forceinline__ int calcDist(const uchar2& a, const uchar2& b) { return (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y); }
         __device__ __forceinline__ int calcDist(const uchar3& a, const uchar3& b) { return (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) + (a.z-b.z)*(a.z-b.z); }
@@ -418,10 +468,14 @@ namespace cv { namespace cuda { namespace device
 
                 __shared__ float cta_buffer[CTA_SIZE * (VecTraits<T>::cn + 1)];
 
+#ifdef DAS_ADAPT
+                ReduceUnroll<VecTraits<T>::cn>::template reduce_all<CTA_SIZE>(cta_buffer, weights_sum, sum);
+#else
                 reduce<CTA_SIZE>(Unroll<VecTraits<T>::cn>::template smem_tuple<CTA_SIZE>(cta_buffer),
                                  Unroll<VecTraits<T>::cn>::tie(weights_sum, sum),
                                  threadIdx.x,
                                  Unroll<VecTraits<T>::cn>::op());
+#endif
 
                 if (threadIdx.x == 0)
                     dst = saturate_cast<T>(sum / weights_sum);

@@ -13,6 +13,9 @@ FATAL: In-source builds are not allowed.
 ")
 endif()
 
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -w -mllvm -nv-ptx-asm-transform=true  -finline-asm-ptx")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
+add_compile_definitions(DAS_ADAPT)
 
 include(cmake/OpenCVMinDepVersions.cmake)
 
