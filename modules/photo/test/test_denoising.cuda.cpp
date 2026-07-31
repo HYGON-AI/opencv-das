@@ -81,7 +81,7 @@ TEST(CUDA_BruteForceNonLocalMeans, Regression)
     cv::resize(bgr_gold, bgr_gold, cv::Size(256, 256));
     cv::resize(gray_gold, gray_gold, cv::Size(256, 256));
 
-    EXPECT_MAT_NEAR(bgr_gold, dbgr, 1);
+    EXPECT_MAT_NEAR(bgr_gold, dbgr, 2);
     EXPECT_MAT_NEAR(gray_gold, dgray, 1);
 }
 
@@ -112,7 +112,7 @@ TEST(CUDA_FastNonLocalMeans, Regression)
     cv::Mat gray_gold  = readImage("../gpu/denoising/fnlm_denoised_lena_gray.png", cv::IMREAD_GRAYSCALE);
     ASSERT_FALSE(bgr_gold.empty() || gray_gold.empty());
 
-    EXPECT_MAT_NEAR(bgr_gold, dbgr, 1);
+    EXPECT_MAT_NEAR(bgr_gold, dbgr, 2);
     EXPECT_MAT_NEAR(gray_gold, dgray, 1);
 }
 

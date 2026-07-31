@@ -58,7 +58,7 @@ public:
         setParamsFrom(params);
         ceilMode = params.get<bool>("ceil_mode", true);
         spatialScale = params.get<float>("spatial_scale", 1);
-        avePoolPaddedArea = params.get<bool>("ave_pool_padded_area", true);
+        avePoolPaddedArea = params.get<bool>("ave_pool_padded_area", false);
     }
 
     void finalize(InputArrayOfArrays inputs_arr, OutputArrayOfArrays outputs_arr) CV_OVERRIDE

@@ -11,6 +11,8 @@
 #include "../csl/tensor_ops.hpp"
 #include "../csl/cudnn/recurrent.hpp"
 
+#include <type_traits>
+
 namespace cv { namespace dnn { namespace cuda4dnn {
 
 struct RNNConfiguration
@@ -21,6 +23,104 @@ struct RNNConfiguration
     int inputSize;
     int miniBatch;
     bool bidirectional;
+};
+
+template <class T, class Enable = void>
+struct LSTMFilterPacker
+{
+    static Mat pack(const csl::cudnn::Handle&, const Mat& filters, const RNNConfiguration&)
+    {
+        return filters;
+    }
+};
+
+inline Mat packLSTMFiltersFP32(const csl::cudnn::Handle& handle, const Mat& filters, const RNNConfiguration& config)
+{
+    CV_Assert(filters.type() == CV_32F);
+    Mat contiguous = filters.isContinuous() ? filters : filters.clone();
+
+    csl::cudnn::DropoutDescriptor dropoutDesc(handle, 0.0f);
+    csl::cudnn::RNNDescriptor<float> rnnDesc(handle,
+        csl::cudnn::RNNDescriptor<float>::RNNMode::LSTM,
+        config.hiddenSize, config.numLayers, config.bidirectional, dropoutDesc);
+    csl::cudnn::TensorDescriptor<float> xDesc({config.miniBatch, config.inputSize, 1});
+
+    size_t sizeInBytes = 0;
+    CUDA4DNN_CHECK_CUDNN(cudnnGetRNNParamsSize(handle.get(), rnnDesc.get(), xDesc.get(),
+                                               &sizeInBytes, CUDNN_DATA_FLOAT));
+    CV_Assert(sizeInBytes / sizeof(float) == contiguous.total());
+
+    Mat packed = Mat::zeros(contiguous.size(), contiguous.type());
+    const float* src = contiguous.ptr<float>();
+    float* dst = packed.ptr<float>();
+    csl::cudnn::FilterDescriptor<float> weightsDesc({static_cast<int>(contiguous.total()), 1, 1});
+
+    const int numDirections = config.bidirectional ? 2 : 1;
+    const size_t wxStride = static_cast<size_t>(4) * config.hiddenSize * config.inputSize;
+    const size_t whStride = static_cast<size_t>(4) * config.hiddenSize * config.hiddenSize;
+    const size_t bStride = static_cast<size_t>(8) * config.hiddenSize;
+    const size_t dirStride = wxStride + whStride + bStride;
+
+    for (int pseudoLayer = 0; pseudoLayer < config.numLayers * numDirections; ++pseudoLayer)
+    {
+        const float* dirBase = src + pseudoLayer * dirStride;
+        const float* wxBase = dirBase;
+        const float* whBase = wxBase + wxStride;
+        const float* wbBase = whBase + whStride;
+        const float* rbBase = wbBase + static_cast<size_t>(4) * config.hiddenSize;
+
+        for (int linLayerID = 0; linLayerID < 8; ++linLayerID)
+        {
+            cudnnFilterDescriptor_t matDesc = nullptr;
+            void* matPtr = nullptr;
+            CUDA4DNN_CHECK_CUDNN(cudnnCreateFilterDescriptor(&matDesc));
+            CUDA4DNN_CHECK_CUDNN(cudnnGetRNNLinLayerMatrixParams(handle.get(), rnnDesc.get(),
+                pseudoLayer, xDesc.get(), weightsDesc.get(), dst,
+                linLayerID, matDesc, &matPtr));
+            const size_t matOffset = static_cast<float*>(matPtr) - dst;
+            const size_t matSize = (linLayerID < 4)
+                ? static_cast<size_t>(config.hiddenSize) * config.inputSize
+                : static_cast<size_t>(config.hiddenSize) * config.hiddenSize;
+            const float* matSrc = (linLayerID < 4)
+                ? wxBase + static_cast<size_t>(linLayerID) * config.hiddenSize * config.inputSize
+                : whBase + static_cast<size_t>(linLayerID - 4) * config.hiddenSize * config.hiddenSize;
+            std::copy(matSrc, matSrc + matSize, dst + matOffset);
+            CUDA4DNN_CHECK_CUDNN(cudnnDestroyFilterDescriptor(matDesc));
+
+            cudnnFilterDescriptor_t biasDesc = nullptr;
+            void* biasPtr = nullptr;
+            CUDA4DNN_CHECK_CUDNN(cudnnCreateFilterDescriptor(&biasDesc));
+            CUDA4DNN_CHECK_CUDNN(cudnnGetRNNLinLayerBiasParams(handle.get(), rnnDesc.get(),
+                pseudoLayer, xDesc.get(), weightsDesc.get(), dst,
+                linLayerID, biasDesc, &biasPtr));
+            const size_t biasOffset = static_cast<float*>(biasPtr) - dst;
+            const float* biasSrc = (linLayerID < 4)
+                ? wbBase + static_cast<size_t>(linLayerID) * config.hiddenSize
+                : rbBase + static_cast<size_t>(linLayerID - 4) * config.hiddenSize;
+            std::copy(biasSrc, biasSrc + config.hiddenSize, dst + biasOffset);
+            CUDA4DNN_CHECK_CUDNN(cudnnDestroyFilterDescriptor(biasDesc));
+        }
+    }
+
+    return packed;
+}
+
+template <class T>
+struct LSTMFilterPacker<T, typename std::enable_if<std::is_same<T, float>::value>::type>
+{
+    static Mat pack(const csl::cudnn::Handle& handle, const Mat& filters, const RNNConfiguration& config)
+    {
+        return packLSTMFiltersFP32(handle, filters, config);
+    }
+};
+
+template <class T>
+struct LSTMFilterPacker<T, typename std::enable_if<std::is_same<T, half>::value>::type>
+{
+    static Mat pack(const csl::cudnn::Handle& handle, const Mat& filters, const RNNConfiguration& config)
+    {
+        return packLSTMFiltersFP32(handle, filters, config);
+    }
 };
 
 template<class T>
@@ -46,7 +146,8 @@ public:
         };
 
         lstm = csl::LSTM<T>(handle, params);
-        auto correct_shape_filters = filters.reshape(1, {static_cast<int>(filters.total()), 1, 1});
+        Mat packed_filters = LSTMFilterPacker<T>::pack(handle, filters, config);
+        auto correct_shape_filters = packed_filters.reshape(1, {static_cast<int>(packed_filters.total()), 1, 1});
         filtersTensor = csl::makeTensorHeader<T>(correct_shape_filters);
         csl::copyMatToTensor<T>(correct_shape_filters, filtersTensor, stream);
 

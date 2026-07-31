@@ -726,10 +726,10 @@ public:
             toIFCO(m);
         }
 
-        b = b.reshape(1, static_cast<int>(b.total()));
+        b = b.reshape(1, numDirs);
 
         Mat ordered_weights;
-        // Wx_f, Wh_f, [Wx_b, Wh_b,] b
+        // Interleave weights per direction to match cuDNN's bidirectional layout.
         for (int i = 0; i < numDirs; ++i)
         {
             for (size_t j = 0; j < 2; ++j) // Wx, Wh
@@ -737,8 +737,9 @@ public:
                 Mat oneDirection = originalBlobs[j].row(i);
                 ordered_weights.push_back(oneDirection.reshape(1, static_cast<int>(oneDirection.total())));
             }
+            Mat oneDirectionBias = b.row(i);
+            ordered_weights.push_back(oneDirectionBias.reshape(1, static_cast<int>(oneDirectionBias.total())));
         }
-        ordered_weights.push_back(b);
 
         // Pass hidden states as is
         Mat h0 = blobs[3];

@@ -348,7 +348,7 @@ struct OCL4DNNPoolConfig
         channels(0),
         pool_method(LIBDNN_POOLING_METHOD_MAX),
         global_pooling(false),
-        avePoolPaddedArea(true),
+        avePoolPaddedArea(false),
         computeMaxIdx(true),
         use_half(false)
     {}

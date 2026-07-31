@@ -4,6 +4,7 @@
 
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>
+#include <algorithm>
 
 #include "grid_stride_range.hpp"
 #include "execution.hpp"
@@ -65,7 +66,7 @@ namespace cv { namespace dnn { namespace cuda4dnn { namespace kernels {
         CV_Assert(is_fully_aligned<float>(input, N));
 
         auto kernel = raw::fp32_to_fp16<N>;
-        auto policy = make_policy(kernel, output.size() / N, 0, stream);
+        auto policy = make_policy(kernel, std::min<std::size_t>(output.size() / N, 256), 0, stream);
         launch_kernel(kernel, policy, output, input);
     }
 
@@ -85,7 +86,7 @@ namespace cv { namespace dnn { namespace cuda4dnn { namespace kernels {
         CV_Assert(is_fully_aligned<__half>(input, N));
 
         auto kernel = raw::fp16_to_fp32<N>;
-        auto policy = make_policy(kernel, output.size() / N, 0, stream);
+        auto policy = make_policy(kernel, std::min<std::size_t>(output.size() / N, 256), 0, stream);
         launch_kernel(kernel, policy, output, input);
     }
 

@@ -205,14 +205,21 @@ namespace cv { namespace dnn { namespace cuda4dnn { namespace csl { namespace cu
             ildb = static_cast<int>(ldb),
             ildc = static_cast<int>(ldc);
 
+        const float alpha_fp32 = alpha;
+        const float beta_fp32 = beta;
+
         CUDA4DNN_CHECK_CUBLAS(
-            cublasHgemm(
+            cublasGemmEx(
                 handle.get(),
                 opa, opb,
                 irows_c, icols_c, icommon_dim,
-                &alpha, A.get(), ilda,
-                B.get(), ildb,
-                &beta, C.get(), ildc
+                &alpha_fp32,
+                A.get(), CUDA_R_16F, ilda,
+                B.get(), CUDA_R_16F, ildb,
+                &beta_fp32,
+                C.get(), CUDA_R_16F, ildc,
+                CUBLAS_COMPUTE_32F,
+                CUBLAS_GEMM_DEFAULT
             )
         );
     }
