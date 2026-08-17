@@ -11,7 +11,9 @@
 //                For Open Source Computer Vision Library
 //
 // Copyright (c) 2016-2017 Fabian David Tschopp, all rights reserved.
-// Copyright (c) 2026 Hygon Information Technology Co., Ltd.
+// Copyright (C) 2026 Hygon Information Technology Co., Ltd.
+// SPDX-License-Identifier: Apache-2.0
+// Modified by Hygon Information Technology Co., Ltd., 2026.
 // Third party copyrights are property of their respective owners.
 //
 // Redistribution and use in source and binary forms, with or without modification,

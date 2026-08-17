@@ -1,11 +1,19 @@
 ## OpenCV: Open Source Computer Vision Library
 
-**This repository is a fork of [opencv/opencv](https://github.com/opencv/opencv).**
+### Open Source Attribution
 
-- Modified by Hygon Information Technology Co., Ltd. for HCU platform support.
-- The upstream opencv project is maintained by the OpenCV team.
-- This fork is based on the 4.9.0 release.
-- Key modifications include HCU/HIP backend build support.
+This repository is based on [opencv/opencv](https://github.com/opencv/opencv)
+and contains Hygon-maintained changes for HCU/ROCm environments. `opencv`
+is derived from the upstream [opencv](https://github.com/opencv/opencv/tree/4.9.0)
+project.
+
+- Modified by Hygon Information Technology Co., Ltd., 2026.
+- Direct upstream: [opencv](https://github.com/opencv/opencv/tree/4.9.0)
+- Upstream branch: `4.x`
+- Upstream tag: `4.9.0`
+- Upstream baseline commit: `dad8af6b17f8e60d7b95a1203a1b4d22f56574cf`
+- License: Apache-2.0
+- Third-party notices: see component license files under `3rdparty/` and preserved third-party notices in the source tree
 
 ### Keep OpenCV Free
 
