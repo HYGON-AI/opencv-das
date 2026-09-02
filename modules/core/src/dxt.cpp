@@ -2466,7 +2466,7 @@ class PlanCache
                 break;
             case R2R:
             default:
-                CV_Error(Error::StsNotImplemented, "AMD Fft does not support this type");
+                CV_Error(Error::StsNotImplemented, "HCU Fft does not support this type");
                 break;
             }
 

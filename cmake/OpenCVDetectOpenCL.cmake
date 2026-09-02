@@ -44,7 +44,7 @@ if(OPENCL_FOUND)
               NAMES include/clAmdFft.h
               PATHS ENV CLAMDFFT_PATH ENV ProgramFiles
               PATH_SUFFIXES clAmdFft AMD/clAmdFft
-              DOC "AMD FFT root directory"
+              DOC "HCU FFT root directory"
               NO_DEFAULT_PATH)
 
     find_path(CLAMDFFT_INCLUDE_DIR
@@ -64,7 +64,7 @@ if(OPENCL_FOUND)
               NAMES include/clAmdBlas.h
               PATHS ENV CLAMDBLAS_PATH ENV ProgramFiles
               PATH_SUFFIXES clAmdBlas AMD/clAmdBlas
-              DOC "AMD FFT root directory"
+              DOC "HCU FFT root directory"
               NO_DEFAULT_PATH)
 
     find_path(CLAMDBLAS_INCLUDE_DIR
