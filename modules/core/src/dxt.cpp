@@ -11,6 +11,7 @@
 //                For Open Source Computer Vision Library
 //
 // Copyright (C) 2000, Intel Corporation, all rights reserved.
+// Modified by Hygon Information Technology Co., Ltd., 2026.
 // Third party copyrights are property of their respective owners.
 //
 // Redistribution and use in source and binary forms, with or without modification,
@@ -2466,7 +2467,11 @@ class PlanCache
                 break;
             case R2R:
             default:
+#ifdef DAS_ADAPT
                 CV_Error(Error::StsNotImplemented, "HCU Fft does not support this type");
+#else
+                CV_Error(Error::StsNotImplemented, "AMD Fft does not support this type");
+#endif
                 break;
             }
 

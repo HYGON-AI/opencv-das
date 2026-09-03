@@ -1,3 +1,5 @@
+# Modified by Hygon Information Technology Co., Ltd., 2026.
+
 set(OPENCL_FOUND ON CACHE BOOL "OpenCL library is found")
 if(APPLE)
   set(OPENCL_LIBRARY "-framework OpenCL" CACHE STRING "OpenCL library")
@@ -40,12 +42,21 @@ if(OPENCL_FOUND)
   set(OPENCL_INCLUDE_DIRS ${OPENCL_INCLUDE_DIR})
 
   if(WITH_OPENCLAMDFFT)
-    find_path(CLAMDFFT_ROOT_DIR
-              NAMES include/clAmdFft.h
-              PATHS ENV CLAMDFFT_PATH ENV ProgramFiles
-              PATH_SUFFIXES clAmdFft AMD/clAmdFft
-              DOC "HCU FFT root directory"
-              NO_DEFAULT_PATH)
+    if("$ENV{ROCM_PATH}" MATCHES "^/opt/dtk")
+      find_path(CLAMDFFT_ROOT_DIR
+                NAMES include/clAmdFft.h
+                PATHS ENV CLAMDFFT_PATH ENV ProgramFiles
+                PATH_SUFFIXES clAmdFft AMD/clAmdFft
+                DOC "HCU FFT root directory"
+                NO_DEFAULT_PATH)
+    else()
+      find_path(CLAMDFFT_ROOT_DIR
+                NAMES include/clAmdFft.h
+                PATHS ENV CLAMDFFT_PATH ENV ProgramFiles
+                PATH_SUFFIXES clAmdFft AMD/clAmdFft
+                DOC "AMD FFT root directory"
+                NO_DEFAULT_PATH)
+    endif()
 
     find_path(CLAMDFFT_INCLUDE_DIR
               NAMES clAmdFft.h
@@ -60,12 +71,21 @@ if(OPENCL_FOUND)
   endif()
 
   if(WITH_OPENCLAMDBLAS)
-    find_path(CLAMDBLAS_ROOT_DIR
-              NAMES include/clAmdBlas.h
-              PATHS ENV CLAMDBLAS_PATH ENV ProgramFiles
-              PATH_SUFFIXES clAmdBlas AMD/clAmdBlas
-              DOC "HCU FFT root directory"
-              NO_DEFAULT_PATH)
+    if("$ENV{ROCM_PATH}" MATCHES "^/opt/dtk")
+      find_path(CLAMDBLAS_ROOT_DIR
+                NAMES include/clAmdBlas.h
+                PATHS ENV CLAMDBLAS_PATH ENV ProgramFiles
+                PATH_SUFFIXES clAmdBlas AMD/clAmdBlas
+                DOC "HCU FFT root directory"
+                NO_DEFAULT_PATH)
+    else()
+      find_path(CLAMDBLAS_ROOT_DIR
+                NAMES include/clAmdBlas.h
+                PATHS ENV CLAMDBLAS_PATH ENV ProgramFiles
+                PATH_SUFFIXES clAmdBlas AMD/clAmdBlas
+                DOC "AMD FFT root directory"
+                NO_DEFAULT_PATH)
+    endif()
 
     find_path(CLAMDBLAS_INCLUDE_DIR
               NAMES clAmdBlas.h
