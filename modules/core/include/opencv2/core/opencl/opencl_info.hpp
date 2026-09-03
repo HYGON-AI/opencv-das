@@ -173,19 +173,21 @@ static void dumpOpenCLInformation()
         const char* haveAmdBlasStr = haveAmdBlas() ? "Yes" : "No";
 #ifdef DAS_ADAPT
         DUMP_MESSAGE_STDOUT("    Has HCU Blas = " << haveAmdBlasStr);
+        DUMP_CONFIG_PROPERTY("cv_ocl_current_HcuBlas", haveAmdBlas());
 #else
         DUMP_MESSAGE_STDOUT("    Has AMD Blas = " << haveAmdBlasStr);
-#endif
         DUMP_CONFIG_PROPERTY("cv_ocl_current_AmdBlas", haveAmdBlas());
+#endif
 
         const char* haveAmdFftStr = haveAmdFft() ? "Yes" : "No";
 
 #ifdef DAS_ADAPT
         DUMP_MESSAGE_STDOUT("    Has HCU Fft = " << haveAmdFftStr);
+        DUMP_CONFIG_PROPERTY("cv_ocl_current_HcuFft", haveAmdFft());
 #else
         DUMP_MESSAGE_STDOUT("    Has AMD Fft = " << haveAmdFftStr);
-#endif
         DUMP_CONFIG_PROPERTY("cv_ocl_current_AmdFft", haveAmdFft());
+#endif
 
 
         DUMP_MESSAGE_STDOUT("    Preferred vector width char = " << device.preferredVectorWidthChar());

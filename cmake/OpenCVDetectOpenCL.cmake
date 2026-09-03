@@ -49,6 +49,11 @@ if(OPENCL_FOUND)
                 PATH_SUFFIXES clAmdFft AMD/clAmdFft
                 DOC "HCU FFT root directory"
                 NO_DEFAULT_PATH)
+      find_path(CLAMDFFT_INCLUDE_DIR
+                NAMES clAmdFft.h
+                HINTS ${CLAMDFFT_ROOT_DIR}
+                PATH_SUFFIXES include
+                DOC "clHcuFft include directory")
     else()
       find_path(CLAMDFFT_ROOT_DIR
                 NAMES include/clAmdFft.h
@@ -56,13 +61,12 @@ if(OPENCL_FOUND)
                 PATH_SUFFIXES clAmdFft AMD/clAmdFft
                 DOC "AMD FFT root directory"
                 NO_DEFAULT_PATH)
+      find_path(CLAMDFFT_INCLUDE_DIR
+                NAMES clAmdFft.h
+                HINTS ${CLAMDFFT_ROOT_DIR}
+                PATH_SUFFIXES include
+                DOC "clAmdFft include directory")
     endif()
-
-    find_path(CLAMDFFT_INCLUDE_DIR
-              NAMES clAmdFft.h
-              HINTS ${CLAMDFFT_ROOT_DIR}
-              PATH_SUFFIXES include
-              DOC "clAmdFft include directory")
 
     if(CLAMDFFT_INCLUDE_DIR)
       set(HAVE_CLAMDFFT 1)
@@ -78,6 +82,11 @@ if(OPENCL_FOUND)
                 PATH_SUFFIXES clAmdBlas AMD/clAmdBlas
                 DOC "HCU FFT root directory"
                 NO_DEFAULT_PATH)
+      find_path(CLAMDBLAS_INCLUDE_DIR
+                NAMES clAmdBlas.h
+                HINTS ${CLAMDBLAS_ROOT_DIR}
+                PATH_SUFFIXES include
+                DOC "clHcuFft include directory")
     else()
       find_path(CLAMDBLAS_ROOT_DIR
                 NAMES include/clAmdBlas.h
@@ -85,13 +94,13 @@ if(OPENCL_FOUND)
                 PATH_SUFFIXES clAmdBlas AMD/clAmdBlas
                 DOC "AMD FFT root directory"
                 NO_DEFAULT_PATH)
+      find_path(CLAMDBLAS_INCLUDE_DIR
+                NAMES clAmdBlas.h
+                HINTS ${CLAMDBLAS_ROOT_DIR}
+                PATH_SUFFIXES include
+                DOC "clAmdFft include directory")
     endif()
 
-    find_path(CLAMDBLAS_INCLUDE_DIR
-              NAMES clAmdBlas.h
-              HINTS ${CLAMDBLAS_ROOT_DIR}
-              PATH_SUFFIXES include
-              DOC "clAmdFft include directory")
 
     if(CLAMDBLAS_INCLUDE_DIR)
       set(HAVE_CLAMDBLAS 1)
