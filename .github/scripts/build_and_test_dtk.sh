@@ -29,7 +29,6 @@ export PATH="$(dirname "${nvcc_path}"):${PATH}"
 export CUDA_PATH="${cuda_root}"
 export CUDA_BIN_PATH="${cuda_root}"
 export CUDACXX="${nvcc_path}"
-export CUDAToolkit_ROOT="${cuda_root}"
 
 "${nvcc_path}" --version
 cmake --version
@@ -38,8 +37,6 @@ cmake -S . -B build-dtk -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_CUDA_COMPILER="${nvcc_path}" \
   -DCMAKE_CUDA_COMPILER_FORCED=TRUE \
-  -DCUDA_TOOLKIT_ROOT_DIR="${cuda_root}" \
-  -DCUDAToolkit_ROOT="${cuda_root}" \
   -DOPENCV_EXTRA_MODULES_PATH="${GITHUB_WORKSPACE}/opencv_contrib/modules" \
   -DWITH_CUDA=ON \
   -DBUILD_LIST=core,imgproc,cudev,cudaarithm \
