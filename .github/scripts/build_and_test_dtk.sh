@@ -39,7 +39,7 @@ cmake -S . -B build-dtk -G Ninja \
   -DCMAKE_CUDA_COMPILER_FORCED=TRUE \
   -DOPENCV_EXTRA_MODULES_PATH="${GITHUB_WORKSPACE}/opencv_contrib/modules" \
   -DWITH_CUDA=ON \
-  -DBUILD_LIST=core,imgproc,cudev,cudaarithm \
+  -DBUILD_LIST=core,imgproc,ts,cudev,cudaarithm \
   -DBUILD_TESTS=ON \
   -DBUILD_PERF_TESTS=OFF \
   -DBUILD_EXAMPLES=OFF \
