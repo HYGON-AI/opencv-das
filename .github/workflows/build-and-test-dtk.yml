@@ -58,6 +58,14 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Checkout matching OpenCV test data
+        uses: actions/checkout@v4
+        with:
+          repository: opencv/opencv_extra
+          ref: 4.9.0
+          path: opencv_extra
+          fetch-depth: 1
+
       - name: Install DTK and build dependencies
         shell: bash
         env:
