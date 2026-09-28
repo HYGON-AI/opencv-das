@@ -46,6 +46,7 @@ cmake -S . -B build-dtk -G Ninja \
   -DCMAKE_CUDA_COMPILER_FORCED=TRUE \
   -DOPENCV_EXTRA_MODULES_PATH="${GITHUB_WORKSPACE}/opencv_contrib/modules" \
   -DWITH_CUDA=ON \
+  -DOPENCV_DNN_CUDA=OFF \
   -DBUILD_LIST=alphamat,aruco,bgsegm,bioinspired,calib3d,ccalib,core,cudaarithm,cudabgsegm,cudacodec,cudafeatures2d,cudafilters,cudaimgproc,cudalegacy,cudaobjdetect,cudastereo,cudawarping,cudev,datasets,dnn,dnn_objdetect,dnn_superres,dpm,face,features2d,flann,freetype,fuzzy,gapi,hdf,hfs,highgui,img_hash,imgcodecs,imgproc,intensity_transform,line_descriptor,mcc,ml,objdetect,optflow,phase_unwrapping,photo,plot,python3,quality,rapid,reg,rgbd,saliency,sfm,shape,stereo,stitching,structured_light,superres,surface_matching,text,tracking,ts,video,videostab,viz,wechat_qrcode,xfeatures2d,ximgproc,xobjdetect,xphoto \
   -DBUILD_TESTS=ON \
   -DBUILD_PERF_TESTS=OFF \
