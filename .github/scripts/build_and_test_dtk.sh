@@ -16,6 +16,9 @@ for cuda_env in /opt/dtk/cuda/cuda-12/env.sh /opt/dtk/cuda/env.sh /opt/dtk/cuda/
 done
 set -u
 
+git -C "${GITHUB_WORKSPACE}/opencv_extra" lfs install --local
+git -C "${GITHUB_WORKSPACE}/opencv_extra" lfs pull --include='testdata/**'
+
 nvcc_path="$(command -v nvcc || true)"
 if [[ -z "${nvcc_path}" ]]; then
   nvcc_path="$(find /opt/dtk -type f -path '*/bin/nvcc' -perm /111 -print -quit)"
