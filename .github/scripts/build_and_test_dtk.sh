@@ -16,6 +16,9 @@ for cuda_env in /opt/dtk/cuda/cuda-12/env.sh /opt/dtk/cuda/env.sh /opt/dtk/cuda/
 done
 set -u
 
+git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+git config --global --add safe.directory "${GITHUB_WORKSPACE}/opencv_extra"
+git config --global --add safe.directory "${GITHUB_WORKSPACE}/opencv_contrib"
 git -C "${GITHUB_WORKSPACE}/opencv_extra" lfs install --local
 git -C "${GITHUB_WORKSPACE}/opencv_extra" lfs pull --include='testdata/**'
 
